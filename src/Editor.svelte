@@ -88,6 +88,8 @@
         }
 
         editor.setValue(data);
+
+        window.location.hash = url;
     }
 
     async function render(url) {
