@@ -18,6 +18,7 @@ module.exports = {
 		mainFields: ['svelte', 'browser', 'module', 'main'],
 		fallback: {
 			"Buffer": require.resolve('buffer/'),
+			"path": false
 		}
 	},
 	output: {

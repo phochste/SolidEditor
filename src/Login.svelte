@@ -1,7 +1,7 @@
 <script>
     import * as N3 from 'n3';
     export let appName = "3123ty123";
-    export let profile = "";
+    export let profile = undefined;
 
     let webId;
     let issuer;
@@ -79,7 +79,7 @@
 
 </script>
 
-{#if ! webId}
+{#if ! profile}
    {#if showConnect}
       <button on:click|preventDefault={onConnect}>Login</button> 
    {:else}

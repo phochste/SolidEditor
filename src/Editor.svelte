@@ -1,5 +1,6 @@
 <script>
     import * as monaco from 'monaco-editor';
+    let mimetype = require('mimetype');
 
     export let url;
     let contentType;
@@ -20,16 +21,30 @@
 
             console.log(`url: ${url} ; status: ${response.status}`);
 
+            if (isSuccessfulStatusCode(response.status)) {
+                contentType = response.headers.get('Content-Type');   
+            }
+            else {
+                contentType = mimeGuesser(url);
+            } 
+
             if (!isSuccessfulStatusCode(response.status))
                 return null;
-
-            contentType = response.headers.get('Content-Type');
 
             return await response.text();
         } catch (error) {
             console.log(error);
             return null;
         }
+    }
+
+    function mimeGuesser(url) {
+        mimetype.set('.rdf', 'text/rdf'); 
+        mimetype.set('.ttl', 'text/turtle');
+        mimetype.set('.n3', 'text/n3');
+        mimetype.set('.jsonld', 'application/ld+json');
+
+        return mimetype.lookup(url);
     }
 
     function isSuccessfulStatusCode(statusCode) {
@@ -65,31 +80,41 @@
         render(url);
     }
         
+    async function update(url) {
+        let data = await getResource(url);
+
+        if (!data) {
+            data = "";
+        }
+
+        editor.setValue(data);
+    }
+
     async function render(url) {
         const data = await getResource(url);
 
-        if (data) {
-            editor = monaco.editor.create(document.getElementById('container'), {
-                value: data ,
-                language: language
-            });
+        editor = monaco.editor.create(document.getElementById('container'), {
+            value: data ,
+            language: language
+        });
 
-            editor.addAction({
-                id: 'my-save',
-                label: 'Save' ,
-                keybindings: [
-                    monaco.KeyMod.CtrlCmd |  monaco.KeyCode.KeyS
-                ],
-                precondition: null ,
-                contextMenuGroupId: 'save' ,
-                contextMenuOrder: 3 ,
-                run: function(ed) {
-                    saveValue();
-                }
-            });
-        }
+        editor.addAction({
+            id: 'my-save',
+            label: 'Save' ,
+            keybindings: [
+                monaco.KeyMod.CtrlCmd |  monaco.KeyCode.KeyS
+            ],
+            precondition: null ,
+            contextMenuGroupId: 'save' ,
+            contextMenuOrder: 3 ,
+            run: function(ed) {
+                saveValue();
+            }
+         });
     }
 </script>
+Resource: <input type="text" bind:value={url} size=80 on:change={async () => update(url)}/>
+Content-Type: <input type="text" bind:value={contentType} />
 Language:
 <select bind:value={language}  on:change={handleLanguage}>
    <option>--Select--</option>
