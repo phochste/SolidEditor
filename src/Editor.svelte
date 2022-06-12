@@ -2,6 +2,24 @@
     import * as monaco from 'monaco-editor';
     let mimetype = require('mimetype');
 
+    self.MonacoEnvironment = {
+	    getWorkerUrl: function (moduleId, label) {
+	    	if (label === 'json') {
+	    		return './json.worker.bundle.js';
+	    	}
+	    	if (label === 'css' || label === 'scss' || label === 'less') {
+	    		return './css.worker.bundle.js';
+    		}
+    		if (label === 'html' || label === 'handlebars' || label === 'razor') {
+    			return './html.worker.bundle.js';
+    		}
+    		if (label === 'typescript' || label === 'javascript') {
+    			return './ts.worker.bundle.js';
+    		}
+        	return './editor.worker.bundle.js';
+    	}
+    };
+
     export let url;
     let contentType;
     let etag;
@@ -163,16 +181,19 @@
          });
     }
 </script>
+<svelte:head>
+    <title>Acme Editor - {url}</title>
+</svelte:head>
 <div>
     {#if status}
         {status.code} : {status.message}
     {/if}
 </div>
-Resource: <input type="text" bind:value={url} size=60 on:change={async () => update(url)}/>
 <img src="images/reload.png" 
      alt="Reload" 
      title="Reload" 
      width="30" height="30" on:click={ () => update(url) }/>
+<input type="text" bind:value={url} size=80 on:change={async () => update(url)}/>
 Content-Type: <input type="text" bind:value={contentType} />
 Language:
 <select bind:value={language}  on:change={handleLanguage}>
