@@ -90,7 +90,7 @@
         monaco.editor.setModelLanguage(editor.getModel(), language);
     }
 
-    async function saveValue() {
+    async function saveValue(url) {
         const value = editor.getValue();
 
         console.log(`updating etag: ${etag}`);
@@ -158,8 +158,8 @@
         window.location.hash = url;
     }
 
-    async function render(url) {
-        const data = await getResource(url);
+    async function render(resourceUrl) {
+        const data = await getResource(resourceUrl);
 
         editor = monaco.editor.create(document.getElementById('container'), {
             value: data ,
@@ -174,10 +174,23 @@
             ],
             precondition: null ,
             contextMenuGroupId: 'save' ,
-            contextMenuOrder: 3 ,
+            contextMenuOrder: 1 ,
             run: function(ed) {
-                saveValue();
+                saveValue(resourceUrl);
             }
+         });
+        
+         editor.addAction({
+            id: 'my-save-as',
+            label: 'Save As...',
+            precondition: null ,
+            contextMenuGroupId: 'save' ,
+            contextMenuOrder: 2 ,
+            run: function(ed) {
+                let newurl = prompt("Resource URL:");
+                saveValue(newurl);
+                url = newurl;
+            } 
          });
     }
 </script>
@@ -186,7 +199,7 @@
 </svelte:head>
 <div>
     {#if status}
-        {status.code} : {status.message}
+        &lt;{url}&gt; {status.code} : {status.message}
     {/if}
 </div>
 <img src="images/reload.png" 
