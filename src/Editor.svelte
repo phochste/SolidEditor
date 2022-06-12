@@ -79,7 +79,14 @@
         mimetype.set('.n3', 'text/n3');
         mimetype.set('.jsonld', 'application/ld+json');
 
-        return mimetype.lookup(url);
+        const mime = mimetype.lookup(url);
+
+        if (mime) {
+            return mime;
+        }
+        else {
+            return "text/turtle";
+        }
     }
 
     function isSuccessfulStatusCode(statusCode) {
