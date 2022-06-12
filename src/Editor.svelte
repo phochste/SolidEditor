@@ -4,7 +4,9 @@
 
     export let url;
     let contentType;
+    let etag;
     let editor;
+    let status;
     let languages = ['abap', 'apex', 'azcli', 'bat', 'bicep', 'cameligo', 'clojure', 'coffee', 'cpp', 'csharp', 'csp',
 'css', 'dart', 'dockerfile', 'ecl', 'elixir', 'flow9', 'fsharp', 'freemarker2', 'go', 'graphql',
 'handlebars', 'hcl', 'html', 'ini', 'java', 'javascript', 'julia', 'kotlin', 'less', 'lexon',
@@ -21,6 +23,11 @@
 
             console.log(`url: ${url} ; status: ${response.status}`);
 
+            status = {
+                code: response.status ,
+                message: response.statusText + '.'
+            }
+
             if (isSuccessfulStatusCode(response.status)) {
                 contentType = response.headers.get('Content-Type');   
             }
@@ -31,9 +38,19 @@
             if (!isSuccessfulStatusCode(response.status))
                 return null;
 
+            etag = response.headers.get('ETag');
+
+            console.log(`etag: ${etag}`);
+
             return await response.text();
         } catch (error) {
             console.log(error);
+
+            status = {
+                code: ')' ,
+                message: error
+            };
+
             return null;
         }
     }
@@ -58,21 +75,52 @@
     async function saveValue() {
         const value = editor.getValue();
 
-        const response = await solidClientAuthentication.fetch(url, {
-            method: 'PUT' ,
-            body: value,
-            headers: {
-                "Content-Type": contentType
-            }
-        });
+        console.log(`updating etag: ${etag}`);
 
-        if (! response.ok) {
-            console.error("Request failed: ${response.status}");
-            alert("Failed to save results");
+        try {
+            const response = await solidClientAuthentication.fetch(url, {
+                method: 'PUT' ,
+                body: value,
+                headers: {
+                    "Content-Type": contentType ,
+                    "If-Match": etag
+                }
+            });
+
+            if (! response.ok) {
+                console.error(`Request failed: ${response.status}`);
+
+                let reason = response.statusText;
+
+                if (0) {}
+                else if (response.status == 404) {
+                    reason = 'You don\'t have permissions to update this resource';                
+                }
+                else if (response.status == 412) {
+                    reason = 'Someone else was editing this resource, please reload';
+                }
+
+                status= {
+                    code: response.status ,
+                    message: `Failed to save results: ${reason}.`
+                }
+            }
+            else {
+                console.log("Stored!");
+                status= {
+                    code: response.status ,
+                    message: `Stored.`
+                }
+
+            }
         }
-        else {
-            console.log("Stored!");
-            alert("Saved!");
+        catch (error) {
+            console.log(error);
+        
+            status = {
+                code: ')' ,
+                message: error
+            };
         }
     }
 
@@ -115,7 +163,16 @@
          });
     }
 </script>
-Resource: <input type="text" bind:value={url} size=80 on:change={async () => update(url)}/>
+<div>
+    {#if status}
+        {status.code} : {status.message}
+    {/if}
+</div>
+Resource: <input type="text" bind:value={url} size=60 on:change={async () => update(url)}/>
+<img src="images/reload.png" 
+     alt="Reload" 
+     title="Reload" 
+     width="30" height="30" on:click={ () => update(url) }/>
 Content-Type: <input type="text" bind:value={contentType} />
 Language:
 <select bind:value={language}  on:change={handleLanguage}>
