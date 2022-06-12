@@ -37,6 +37,8 @@
 
     async function getResource(url) {
         try {
+            etag = null;
+            
             const response = await solidClientAuthentication.fetch(url);
 
             console.log(`url: ${url} ; status: ${response.status}`);
@@ -74,9 +76,13 @@
     }
 
     function mimeGuesser(url) {
-        mimetype.set('.rdf', 'text/rdf'); 
+        mimetype.set('.yml', 'application/x-yaml');
+        mimetype.set('.rdf', 'application/rdf+xml'); 
         mimetype.set('.ttl', 'text/turtle');
-        mimetype.set('.n3', 'text/n3');
+        mimetype.set('.n3', 'text/n3;charset=utf-8');
+        mimetype.set('.nt','application/n-triples');
+        mimetype.set('.nq','application/n-quads');
+        mimetype.set('.trig','application/x-trig');
         mimetype.set('.jsonld', 'application/ld+json');
 
         const mime = mimetype.lookup(url);
