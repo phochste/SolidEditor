@@ -9,11 +9,11 @@ const Dotenv = require('dotenv-webpack');
 module.exports = {
 	entry: {
 		'build/bundle': ['./src/main.js'] ,
-		'editor.worker': 'monaco-editor/esm/vs/editor/editor.worker.js',
-		'json.worker': 'monaco-editor/esm/vs/language/json/json.worker',
-		'css.worker': 'monaco-editor/esm/vs/language/css/css.worker',
-		'html.worker': 'monaco-editor/esm/vs/language/html/html.worker',
-		'ts.worker': 'monaco-editor/esm/vs/language/typescript/ts.worker'
+		'build/editor.worker': 'monaco-editor/esm/vs/editor/editor.worker.js',
+		'build/json.worker': 'monaco-editor/esm/vs/language/json/json.worker',
+		'build/css.worker': 'monaco-editor/esm/vs/language/css/css.worker',
+		'build/html.worker': 'monaco-editor/esm/vs/language/html/html.worker',
+		'build/ts.worker': 'monaco-editor/esm/vs/language/typescript/ts.worker'
 	},
 	resolve: {
 		alias: {
