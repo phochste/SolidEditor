@@ -6,6 +6,8 @@
 	export let name;
 	let profile;
 	let stored = false;
+	let resource;
+
 </script>
 
 <nav class="navbar navbar-default">
@@ -25,7 +27,7 @@
 
 <div class="container" style="height: 100% !important">
 {#if typeof(profile) != "undefined" && profile.webId && window.location.hash }
-	<Editor url={window.location.hash.substring(1)}/>
+	<Editor url={window.location.hash.substring(1)}/> 
 {:else}
 	<h1>Welcome to the Acme Editor</h1>
 	<p>
@@ -35,7 +37,7 @@
 	{#if window.location.hash.substring(1)}
 		Please login to edit <tt>{window.location.hash.substring(1)}</tt>.
 	{:else}
-		We need a URL like <tt>{window.location.href}#https://a-resource</tt> to start editing.
+		We need a URL like <tt>{location.protocol}//{location.hostname}{location.path}#https://a-resource</tt> to start editing.
 	{/if}
 	</p>
 	<p>
