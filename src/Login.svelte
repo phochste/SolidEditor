@@ -36,7 +36,7 @@
         solidClientAuthentication.login({
             oidcIssuer: issuer,
             redirectUrl: window.location.href,
-            clientName: "FormViewer"
+            clientName: "SolidEditor"
         });
     }
 
