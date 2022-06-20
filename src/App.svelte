@@ -37,7 +37,9 @@
 	{#if window.location.hash.substring(1)}
 		Please login to edit <tt>{window.location.hash.substring(1)}</tt>.
 	{:else}
-		We need a URL like <tt>{location.protocol}//{location.hostname}{location.path}#https://a-resource</tt> to start editing.
+		We need a URL like 
+		<tt>{location.protocol}//{location.hostname}{#if location.path}{location.path}{/if}#https://a-resource</tt> 
+		to start editing.
 	{/if}
 	</p>
 	<p>
