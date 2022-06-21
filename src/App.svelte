@@ -2,10 +2,43 @@
 	import Login from './Login.svelte';
 	import Logout from './Logout.svelte';
 	import Editor from './Editor.svelte';
+	import { onMount } from 'svelte';
 
 	export let name;
+	export let resource = null;
 	let profile;
-	let stored = false;
+
+	readResource(window.location.search);
+
+	solidClientAuthentication.onSessionRestore( (url) => {
+		console.log("onSessionRestore(%s)", url);
+		readResource(url.replace(/.*\?/,''));
+	});
+
+	function readResource(search) {
+		let params = new URLSearchParams(search);
+		resource = params.get("resource");
+		console.log("readResource(%s) > %s", search, resource);
+	}
+
+	function updateResource(e) {
+		resource = e.target.value;
+		let newUrl = location.protocol + '//' + location.host;
+
+		if (location.pathname) {
+			newUrl += location.pathname;
+		}
+
+		newUrl += '?resource=' + escape(resource);
+
+		window.history.pushState({},undefined,newUrl);
+
+		console.log("updateResource() > %s", resource);
+	}
+
+	onMount( () => {
+		readResource(window.location.search);
+	});
 </script>
 
 <nav class="navbar navbar-default">
@@ -24,25 +57,27 @@
 <Login bind:profile={profile}/>
 
 <div class="container" style="height: 100% !important">
-{#if typeof(profile) != "undefined" && profile.webId && window.location.hash }
-	<Editor url={window.location.hash.substring(1)}/>
+{#if typeof(profile) != "undefined" && profile.webId && resource}
+	<Editor url={resource}/>
 {:else}
 	<h1>Welcome to the Acme Editor</h1>
 	<p>
 		This is a VSCode-like editor for your Solid text files.
 	</p>
 	<p>
-	{#if window.location.hash.substring(1)}
-		Please login to edit <tt>{window.location.hash.substring(1)}</tt>.
+	{#if resource}
+		Please login to edit <tt>{resource}</tt>.
 	{:else}
-		We need a URL like <tt>{window.location.href}#https://a-resource</tt> to start editing.
+		Resource URL:
+		<input type="text" size="80" value={resource}
+			   on:change={updateResource}/>
 	{/if}
 	</p>
-	<p>
-		Have fun!
-	</p>
-	<p>
-		(c) 2022 . Patrick Hochstenbach &lt;Patrick.Hochstenbach@UGent.be&gt; .
-	</p>
 {/if}
+	<footer class="page-footer font-small blue pt-4">
+		<div class="footer-copyright text-center py-3">© 2022 Copyright:
+			Patrick Hochstenbach &lt;Patrick.Hochstenbach@UGent.be&gt; .
+		</div>
+	</footer>
 </div>
+

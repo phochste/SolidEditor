@@ -168,7 +168,16 @@
 
         editor.setValue(data);
 
-        window.location.hash = url;
+        let newUrl = location.protocol + '//' + location.host;
+
+        if (location.pathname) {
+            newUrl += location.pathname;
+        }
+
+        newUrl += '?resource=' + escape(url);
+
+        window.history.pushState({},undefined,newUrl);
+
     }
 
     async function render(resourceUrl) {
