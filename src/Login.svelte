@@ -1,4 +1,5 @@
 <script>
+    import { onMount } from 'svelte';
     import * as N3 from 'n3';
     export let profile = undefined;
 
@@ -20,7 +21,7 @@
         solidClientAuthentication.login({
             oidcIssuer: issuer,
             redirectUrl: window.location.href,
-            clientName: "FormViewer"
+            clientName: "SolidEditor"
         });
     }
 
@@ -75,6 +76,24 @@
         };
     }
 
+    onMount( () =>{
+        let resourceUrl;
+
+        if (window.location.hash) {
+            resourceUrl = window.location.protocol + '//' + 
+                          window.location.host + 
+                          window.location.pathname + '?resource=' +
+                          escape(window.location.hash.substring(1));
+        }
+        else {
+            resourceUrl = window.location.href;
+        }
+
+        solidClientAuthentication.handleIncomingRedirect({ 
+             restorePreviousSession: true ,
+             url: resourceUrl
+        });
+    });
 </script>
 
 {#if ! profile}

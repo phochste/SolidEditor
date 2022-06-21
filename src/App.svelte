@@ -57,8 +57,13 @@
 <Login bind:profile={profile}/>
 
 <div class="container" style="height: 100% !important">
+<<<<<<< HEAD
 {#if typeof(profile) != "undefined" && profile.webId && resource}
 	<Editor url={resource}/>
+=======
+{#if typeof(profile) != "undefined" && profile.webId && window.location.hash }
+	<Editor url={window.location.hash.substring(1)}/> 
+>>>>>>> b67cd0a74f6eb69b938f897ed568144add961e49
 {:else}
 	<h1>Welcome to the Acme Editor</h1>
 	<p>
