@@ -104,9 +104,10 @@
     }
 
     async function saveValue(url) {
-        const value = editor.getValue();
+        console.log(`saveValue(${url})`);
+        console.log(`etag: ${etag}`);
 
-        console.log(`updating etag: ${etag}`);
+        const value = editor.getValue();
 
         try {
             const response = await solidClientAuthentication.fetch(url, {
@@ -143,6 +144,7 @@
                     message: `Stored.`
                 }
 
+                setEtag(url);
             }
         }
         catch (error) {
@@ -157,6 +159,20 @@
 
     if (url) {
         render(url);
+    }
+
+    async function setEtag(url) {
+        console.log(`setEtag(${url})`);
+        try {
+            const response = await solidClientAuthentication.fetch(url);
+            if (response.ok) {
+                etag = response.headers.get('ETag');
+                console.log(`etag: ${etag}`);
+            }
+        }
+        catch (e) {
+            console.error("failed to get etag : %O", e);
+        }
     }
         
     async function update(url) {
@@ -198,7 +214,7 @@
             contextMenuGroupId: 'save' ,
             contextMenuOrder: 1 ,
             run: function(ed) {
-                saveValue(resourceUrl);
+                saveValue(url);
             }
          });
         
