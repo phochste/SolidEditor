@@ -38,8 +38,16 @@
     async function getResource(url) {
         try {
             etag = null;
-            
-            const response = await solidClientAuthentication.fetch(url);
+           
+            const headers  = new Headers();
+            headers.append('pragma','no-cache');
+            headers.append('cache-control','no-cache');
+            const init = {
+                method: 'GET',
+                headers: headers
+            };
+
+            const response = await solidClientAuthentication.fetch(url,init);
 
             console.log(`url: ${url} ; status: ${response.status}`);
 
