@@ -1,5 +1,6 @@
 <script>
     import * as monaco from 'monaco-editor';
+    import * as md5 from 'md5';
     let mimetype = require('mimetype');
 
     self.MonacoEnvironment = {
@@ -24,6 +25,8 @@
     let contentType;
     let etag;
     let editor;
+    let thisVersion;
+    let hasUnsavedChanges = false;
     let status;
     let languages = ['abap', 'apex', 'azcli', 'bat', 'bicep', 'cameligo', 'clojure', 'coffee', 'cpp', 'csharp', 'csp',
 'css', 'dart', 'dockerfile', 'ecl', 'elixir', 'flow9', 'fsharp', 'freemarker2', 'go', 'graphql',
@@ -153,6 +156,12 @@
                 }
 
                 setEtag(url);
+
+                thisVersion = md5(value);
+
+                console.log(`md5: ${thisVersion}`);
+
+                hasUnsavedChanges = false;
             }
         }
         catch (error) {
@@ -201,15 +210,30 @@
         newUrl += '?resource=' + escape(url);
 
         window.history.pushState({},undefined,newUrl);
-
     }
 
     async function render(resourceUrl) {
+        console.log(`rendering: ${resourceUrl}`);
+
         const data = await getResource(resourceUrl);
+
+        thisVersion = md5(data);
+
+        console.log(`md5: ${thisVersion}`);
 
         editor = monaco.editor.create(document.getElementById('container'), {
             value: data ,
             language: language
+        });
+
+        editor.getModel().onDidChangeContent(evt => {
+            const version = md5(editor.getValue());
+            if (version != thisVersion) {
+                hasUnsavedChanges = true;
+            }
+            else {
+                hasUnsavedChanges = false;
+            }
         });
 
         editor.addAction({
@@ -244,11 +268,14 @@
     <title>Acme Editor - {url}</title>
 </svelte:head>
 <button 
-    on:click={ () => { saveValue(url); setEtag(url) } }
+    on:click={ () => { saveValue(url); } }
     type="button" 
     class="btn btn-primary"
     title="Save the resource. Use ctrl/cmd+s as shortcut."
     >Save</button>
+{#if hasUnsavedChanges}
+    <i>Unsaved changes...</i>
+{/if}
 <div>
     {#if status}
         &lt;{url}&gt; {status.code} : {status.message}
