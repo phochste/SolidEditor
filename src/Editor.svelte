@@ -243,6 +243,12 @@
 <svelte:head>
     <title>Acme Editor - {url}</title>
 </svelte:head>
+<button 
+    on:click={ () => { saveValue(url); setEtag(url) } }
+    type="button" 
+    class="btn btn-primary"
+    title="Save the resource. Use ctrl/cmd+s as shortcut."
+    >Save</button>
 <div>
     {#if status}
         &lt;{url}&gt; {status.code} : {status.message}
