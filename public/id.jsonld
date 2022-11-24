@@ -1,0 +1,15 @@
+{
+    "@context": "https://www.w3.org/ns/solid/oidc-context.jsonld",
+    "client_name": "SolidEditor",
+    "client_uri": "https://solideditor.patrickhochstenbach.net",
+    "client_id": "https://solideditor.patrickhochstenbach.net/id.jsonld",
+    "redirect_uris": [
+      "https://solideditor.patrickhochstenbach.net",
+      "https://solideditor.patrickhochstenbach.net/"
+    ],
+    "logo_uri": "https://solideditor.patrickhochstenbach.net/images/unknown.jpeg",
+    "http://schema.org/description": "An VSCode clone for editing plain text files on Solid pods.",
+    "http://schema.org/category": {
+      "@id": "https://data.knows.idlab.ugent.be/person/office/application-categories#utilities"
+    }
+  }
