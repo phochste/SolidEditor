@@ -2,6 +2,8 @@
     import * as monaco from 'monaco-editor';
     import * as md5 from 'md5';
     let mimetype = require('mimetype');
+    let parseLH = require('parse-link-header');
+
 
     self.MonacoEnvironment = {
 	    getWorkerUrl: function (moduleId, label) {
@@ -114,6 +116,36 @@
         monaco.editor.setModelLanguage(editor.getModel(), language);
     }
 
+    async function setMetadata(url) {
+        console.log('Editing metadata for', url)
+        if (!url) {
+            window.alert("Cannot edit metadata if no resource is defined.")
+        }
+        let metadataUrl = await getMetadataURL(url)
+        if (!metadataUrl) {
+            window.alert("Could not find metadata resource to edit.")
+            return;
+        }
+        let currentUrl = window.location.href;
+        let baseUrl = currentUrl.split('?')[0]
+        console.log('baseUrl', baseUrl)
+        window.open(baseUrl+'?resource='+encodeURIComponent(metadataUrl))
+    }
+
+    async function getMetadataURL(url) {
+        try {
+            let res = await fetch(url, { method: "HEAD"} )
+            let linkHeaders = res.headers.get('Link')
+            let parsed = parseLH(linkHeaders);
+            let metadataResourceURI = parsed.describedby.url
+            if (!metadataResourceURI) return undefined
+            // Call form viewer for metadata editing
+            return metadataResourceURI
+        } catch (e) {
+            return undefined
+        }
+    }
+
     async function saveValue(url) {
         console.log(`saveValue(${url})`);
         console.log(`etag: ${etag}`);
@@ -193,6 +225,7 @@
     }
         
     async function update(url) {
+
         let data = await getResource(url);
 
         if (!data) {
@@ -273,6 +306,12 @@
     class="btn btn-primary"
     title="Save the resource. Use ctrl/cmd+s as shortcut."
     >Save</button>
+<button 
+    on:click={ () => { setMetadata(url); } }
+    type="button" 
+    class="btn btn-primary"
+    title="Edit the resource metadata."
+    >Edit metadata</button>
 {#if hasUnsavedChanges}
     <i>Unsaved changes...</i>
 {/if}
