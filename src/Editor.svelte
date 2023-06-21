@@ -75,10 +75,10 @@
 
             return await response.text();
         } catch (error) {
-            console.log(error);
+            console.log(`Whoops:`,error);
 
             status = {
-                code: ')' ,
+                code: '404' ,
                 message: error
             };
 
@@ -217,24 +217,24 @@
 
         const data = await getResource(resourceUrl);
 
-        thisVersion = md5(data);
-
-        console.log(`md5: ${thisVersion}`);
-
         editor = monaco.editor.create(document.getElementById('container'), {
             value: data ,
             language: language
         });
 
-        editor.getModel().onDidChangeContent(evt => {
-            const version = md5(editor.getValue());
-            if (version != thisVersion) {
-                hasUnsavedChanges = true;
-            }
-            else {
-                hasUnsavedChanges = false;
-            }
-        });
+        if (data) {
+            thisVersion = md5(data);
+            console.log(`md5: ${thisVersion}`);
+            editor.getModel().onDidChangeContent(evt => {
+                const version = md5(editor.getValue());
+                if (version != thisVersion) {
+                 hasUnsavedChanges = true;
+                }
+                else {
+                    hasUnsavedChanges = false;
+                }
+            });
+        }
 
         editor.addAction({
             id: 'my-save',
